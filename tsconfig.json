@@ -1,0 +1,31 @@
+{
+   "ts-node": {
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": ["tsconfig-paths/register"]
+  },
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": true,
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "paths": {
+      "@routes": ["routes"],
+      "@models": ["models"],
+      "@helpers": ["helpers"],
+      "@controllers": ["controllers"],
+      "@middlewares": ["middlewares"],
+      "@configs": ["configs"],
+      "@templates": ["templates"],
+      "@types*": ["types/index"]
+    },
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es6", "dom"],
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}
