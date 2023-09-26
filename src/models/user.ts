@@ -11,6 +11,8 @@ export interface UserDocument extends Document {
   organisation: string;
   createdAt: Date;
   updatedAt: Date | null;
+  resetToken?: string;
+  tokenExpiration?: Date;
 }
 
 const userSchema = new Schema<UserDocument>({
@@ -18,10 +20,12 @@ const userSchema = new Schema<UserDocument>({
   lastName: { type: String },
   email: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
-  password: {type: String},
+  password: { type: String },
   organisation: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  resetToken: { type: String },
+  tokenExpiration: { type: Date },
 });
 
 const User = model<UserDocument>("User", userSchema)
