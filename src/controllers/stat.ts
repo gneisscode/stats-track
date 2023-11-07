@@ -45,6 +45,7 @@ export class StatController {
         await School.updateOne(
           { _id: schoolExists._id },
           {
+            $push: {stats: stat._id},
             $inc: { sessions: 1 },
           }
         );
@@ -416,6 +417,7 @@ export class StatController {
         school = await School.findByIdAndUpdate(
           { _id: schoolId },
           {
+            $pull: { stats: id },
             $inc: { sessions: -1 },
           },
           { new: true }

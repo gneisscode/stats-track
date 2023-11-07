@@ -57,7 +57,7 @@ export class UserController {
       try {
         //check that update request is initiated by the actual authenticated user
         if (id === presenterId) {
-          const { firstName, lastName, username } = req.body;
+          const { firstName, lastName, username, province, teamLead } = req.body;
 
           let user;
 
@@ -85,6 +85,8 @@ export class UserController {
             firstName,
             lastName,
             username,
+            province,
+            teamLead
           }, {new: true, select: "-password"});
 
         
@@ -136,17 +138,23 @@ export class UserController {
             return res.status(404).json({ message: "Presenter not found" });
           }
 
+          // Find the stats to be deleted
+          const statsToDelete = await Stat.find({ presenter: id });
+
+          // Extract stat ids from the stats to be deleted
+          const deletedStatIds = statsToDelete.map((stat) => stat._id);
+
           //delete all stats related to the presenter
 
           await Stat.deleteMany({ presenter: id });
 
           //update the sessions for all schools related to the presenter
 
-          //To-Do : create a relationship between schools and presenters
           await School.updateMany(
-            { presenter: id },
+            { stats: { $in: deletedStatIds } },
             {
-              $inc: { sessions: -1 },
+              $pull: { stats: { $in: deletedStatIds } },
+              $inc: { sessions: -deletedStatIds.length },
             },
             { new: true }
           );
