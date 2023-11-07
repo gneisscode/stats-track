@@ -1,7 +1,9 @@
-import { AuthControllers } from "./auth";
-import { StatControllers } from "./stat";
+import { AuthController } from "./auth";
+import { StatController } from "./stat";
+import { UserController } from "./user";
 
 export{
-    AuthControllers,
-    StatControllers,
+    AuthController,
+    StatController,
+    UserController,
 }

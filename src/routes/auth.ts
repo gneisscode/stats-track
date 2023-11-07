@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { AuthControllers } from "@controllers";
+import { AuthController } from "@controllers";
 
 const authRoutes = Router();
 
-authRoutes.post("/auth/sign-up", AuthControllers.signUp );
-authRoutes.post("/auth/sign-in", AuthControllers.signIn);
-authRoutes.post("/auth/forgot-password", AuthControllers.forgotPassword);
-authRoutes.post("/auth/reset-password", AuthControllers.resetPassword);
+authRoutes.post("/auth/sign-up", AuthController.signUp );
+authRoutes.post("/auth/sign-in", AuthController.signIn);
+authRoutes.post("/auth/forgot-password", AuthController.forgotPassword);
+authRoutes.post("/auth/reset-password", AuthController.resetPassword);
+authRoutes.post("/auth/change-password/:id", AuthController.changePassword);
 export default authRoutes;

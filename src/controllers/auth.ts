@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "@models";
 import { errorResponse, mailHelper } from "@helpers";
 
-export class AuthControllers {
+export class AuthController {
   //user signup
 
   static async signUp(req: Request, res: Response) {
@@ -147,7 +147,7 @@ export class AuthControllers {
     }
   }
 
-  // reset password
+  // user reset password
 
   static async resetPassword(req: Request, res: Response) {
     try {
@@ -178,6 +178,82 @@ export class AuthControllers {
       });
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  // user change password
+
+  static async changePassword(req: Request, res: Response){
+    try {
+      //@ts-ignore
+       const id = req.user.id;
+       const presenterId = req.params.id;
+
+       if (!presenterId) {
+         return res.status(401).json({
+           message: "Unauthorized action",
+         });
+       }
+
+
+       
+      try {
+        //check that update request is initiated by the actual authenticated user
+        if (id === presenterId) {
+          const {oldPassword, newPassword } =
+            req.body;
+
+          let user;
+
+          // Attempt to find the user by ID
+
+          user = await User.findById(id);
+
+          if (!user) {
+            return res.status(404).json({ message: "Presenter not found" });
+          }
+
+
+          //compare passwords
+
+          const passwordMatch = await bcrypt.compare(
+            oldPassword,
+            user.password
+          );
+
+          if (!passwordMatch) {
+            return res.status(401).json({
+              message: "Incorrect password",
+            });
+          }
+
+          const passwordHash = await bcrypt.hash(newPassword, 10);
+
+          user.password = passwordHash;
+
+          return res.status(200).json({
+            data: { user },
+            message: "Password updated successfully",
+          });
+        } else {
+          return res.status(401).json({
+            message: "Unauthorized action",
+          });
+        }
+      } catch (error: any) {
+        // Handle CastError separately
+        if (error.name === "CastError") {
+          return res.status(404).json({ message: "Invalid user ID" });
+        }
+        // For other errors, return a 500 status code
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+      
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error" });
+      
     }
   }
 }

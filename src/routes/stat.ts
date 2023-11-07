@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { StatControllers } from "@controllers";
+import { StatController } from "@controllers";
 import { authMiddleware } from "@middlewares";
 
 const statRoutes = Router();
 
-statRoutes.post("/stat/create", authMiddleware, StatControllers.createStat);
-statRoutes.get("/stat/:id", authMiddleware, StatControllers.getStatById)
-statRoutes.get("/stats", authMiddleware, StatControllers.getAllStats);
-statRoutes.get("/stats/user/:id", authMiddleware, StatControllers.getStatsByPresenterId);
-statRoutes.get("/stats/school/:id", authMiddleware, StatControllers.getStatsBySchoolId);
-statRoutes.put("/stat/update/:id", authMiddleware, StatControllers.updateStat)
-statRoutes.delete("/stat/delete/:id", authMiddleware, StatControllers.deleteStat)
+statRoutes.post("/stat/create", authMiddleware, StatController.createStat);
+statRoutes.get("/stat/:id", authMiddleware, StatController.getStatById)
+statRoutes.get("/stats", authMiddleware, StatController.getAllStats);
+statRoutes.get("/stats/user/:id", authMiddleware, StatController.getStatsByPresenterId);
+statRoutes.get("/stats/school/:id", authMiddleware, StatController.getStatsBySchoolId);
+statRoutes.put("/stat/update/:id", authMiddleware, StatController.updateStat)
+statRoutes.delete("/stat/delete/:id", authMiddleware, StatController.deleteStat)
 
 export default statRoutes;

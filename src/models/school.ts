@@ -19,3 +19,8 @@ const schoolSchema = new Schema<SchoolDocument>({
 
 const School = model<SchoolDocument>("School", schoolSchema);
 export default School;
+
+
+//Add province
+//To-Do : create a relationship between schools and presenters
+//To-Do : create a relationship between schools and stats??

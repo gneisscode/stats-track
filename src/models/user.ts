@@ -36,3 +36,6 @@ const userSchema = new Schema<UserDocument>({
 
 const User = model<UserDocument>("User", userSchema)
 export default User
+
+//To Do
+//Add province and team lead

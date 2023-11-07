@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Stat, School, User } from "@models";
 
-export class StatControllers {
+export class StatController {
   //Create a stat
 
   static async createStat(req: Request, res: Response) {
@@ -94,15 +94,27 @@ export class StatControllers {
         });
       }
 
-      const stat = await Stat.findById(id);
+      let stat;
+
+      try {
+        // Attempt to find the stat by ID
+        stat = await Stat.findById(id);
+      } catch (error: any) {
+        // Handle CastError separately
+        if (error.name === "CastError") {
+          return res.status(404).json({ message: "Invalid stat ID" });
+        }
+        // For other errors, return a 500 status code
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+      if (!stat) {
+        return res.status(404).json({ message: "Stat not found" });
+      }
       const presenter = await User.findById(stat?.presenter).select(
         "-password"
       );
       const school = await School.findById(stat?.school);
-
-      if (!stat) {
-        return res.status(404).json({ message: "Stat not found" });
-      }
 
       res.status(200).json({
         data: { stat, presenter, school },
@@ -117,77 +129,103 @@ export class StatControllers {
   //Retrieve stats by presenter ID
   static async getStatsByPresenterId(req: Request, res: Response) {
     try {
-
       //@ts-ignore
-      const id = req.params.id
-       if (!id) {
-         return res.status(401).json({
-           message: "Unauthorized action",
-         });
-       }
+      const id = req.params.id;
+      if (!id) {
+        return res.status(401).json({
+          message: "Unauthorized action",
+        });
+      }
 
-       
-    const stats = await Stat.find({ presenter: id });
-    const presenter = await User.findById(id).select("-password")
+      let stats;
 
-    
-     if (!stats) {
-       return res
-         .status(404)
-         .json({ message: "No stats found for this presenter" });
-     }
+      try {
+        // Attempt to find the stats by presenter ID
+        stats = await Stat.find({ presenter: id });
+      } catch (error: any) {
+        // Handle CastError separately
+        if (error.name === "CastError") {
+          return res.status(404).json({ message: "Invalid user ID" });
+        }
+        // For other errors, return a 500 status code
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
 
+      if (!stats) {
+        return res
+          .status(404)
+          .json({ message: "No stats found for this presenter" });
+      }
 
-    if (stats.length === 0) {
-      return res.status(404).json({ message: "No stats found for this presenter" });
-    }
+      if (stats.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No stats found for this presenter" });
+      }
+      const presenter = await User.findById(id).select("-password");
 
-    res.status(200).json({
-      data:{stats, presenter},
-      message: "Presenter stats retrieved successfully",
-    });
-      
+      res.status(200).json({
+        data: { stats, presenter },
+        message: "Presenter stats retrieved successfully",
+      });
     } catch (error) {
-       console.error(error);
-       res.status(500).json({ error: "Internal server error" });
-      
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
   }
 
   //Retrieve stats by school ID
-  static async getStatsBySchoolId(req: Request, res: Response) {   try {
-    //@ts-ignore
-    const id = req.params.id;
-    if (!id) {
-      return res.status(401).json({
-        message: "Unauthorized action",
+  static async getStatsBySchoolId(req: Request, res: Response) {
+    try {
+      //@ts-ignore
+      const id = req.params.id;
+      if (!id) {
+        return res.status(401).json({
+          message: "Unauthorized action",
+        });
+      }
+
+
+      let stats;
+
+      try {
+        // Attempt to find the stats by school ID
+       stats = await Stat.find({ school: id });
+      } catch (error: any) {
+        // Handle CastError separately
+        if (error.name === "CastError") {
+          return res.status(404).json({ message: "Invalid school ID" });
+        }
+        // For other errors, return a 500 status code
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      if (!stats) {
+        return res
+          .status(404)
+          .json({ message: "No stats found for this school" });
+      }
+
+      if (stats.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No stats found for this school" });
+      }
+
+       const school = await School.findById(id);
+
+
+      res.status(200).json({
+        data: { stats, school },
+        message: "School stats retrieved successfully",
       });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    const stats = await Stat.find({ school: id });
-    const school = await School.findById(id)
-
-     if (!stats) {
-       return res.status(404).json({ message: "No stats found for this school" });
-     }
-
-
-    if (stats.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No stats found for this school" });
-    }
-
-    res.status(200).json({
-      data: { stats, school },
-      message: "School stats retrieved successfully",
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
   }
-}
 
   //Retrieve all stats
 
@@ -216,6 +254,12 @@ export class StatControllers {
       const presenter = req.user.id;
       const statId = req.params.id;
       const { school, grade, total, rec, tws, feedback } = req.body;
+      
+      if (!statId) {
+          return res.status(401).json({
+            message: "Unauthorized action",
+          });
+        }
 
       //check if stat exists in DB
 
@@ -320,6 +364,11 @@ export class StatControllers {
       //@ts-ignore
       const presenter = req.user.id;
       const id = req.params.id;
+      if (!id) {
+          return res.status(401).json({
+            message: "Unauthorized action",
+          });
+        }
       const deleted = await Stat.findOneAndDelete({ presenter, _id: id });
 
       if (!deleted) {
