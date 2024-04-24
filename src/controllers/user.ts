@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Stat, School, User } from "@models";
+import jwt from "jsonwebtoken";
 
 
 export class UserController {
@@ -45,7 +46,7 @@ export class UserController {
   static async updateUser(req: Request, res: Response) {
     try {
       //@ts-ignore
-      const id = req.user.id;
+      const id = req.user._id;
       const presenterId = req.params.id;
 
       if (!presenterId) {
@@ -81,7 +82,7 @@ export class UserController {
 
        
 
-          user = User.findOneAndUpdate({ _id: id }, {
+          user = await User.findOneAndUpdate({ _id: id }, {
             firstName,
             lastName,
             username,
@@ -89,10 +90,20 @@ export class UserController {
             teamLead
           }, {new: true, select: "-password"});
 
-        
+
+          //TO-DO: find all stats with ref to presenter id and update them.
+
+         const token = jwt.sign(
+           { user },
+           process.env.JWT_SECRET || "",
+           {
+             expiresIn: "7d",
+           }
+         );
+
 
           return res.status(200).json({
-            data: { user },
+            data: { token, user },
             message: "Presenter updated successfully",
           });
         } else {
@@ -119,7 +130,7 @@ export class UserController {
   static async deleteUser(req: Request, res: Response) {
     try {
       //@ts-ignore
-      const id = req.user.id;
+      const id = req.user._id;
       const presenterId = req.params.id;
 
       if (!presenterId) {

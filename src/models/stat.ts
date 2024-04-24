@@ -3,8 +3,15 @@ const { Schema, Document, model } = mongoose;
 
 export interface StatDocument extends Document {
   _id: ObjectId;
-  school: ObjectId;
-  presenter: ObjectId;
+  schoolId: ObjectId;
+  presenterId: ObjectId;
+  schoolName: string;
+  presenterFirstName: string;
+  presenterLastName: string;
+  presenterUserName: string;
+  presenterProvince?: string;
+  // seminarId: ObjectId;
+  seminarName: string;
   grade: number;
   total: number;
   rec: number;
@@ -15,16 +22,22 @@ export interface StatDocument extends Document {
 }
 
 const statSchema = new Schema<StatDocument>({
-  presenter: {
+  presenterId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  school: {
+  schoolId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "School",
     required: true,
   },
+  presenterFirstName: { type: String },
+  presenterLastName: { type: String },
+  presenterUserName: { type: String },
+  seminarName: { type: String },
+  presenterProvince: { type: String },
+  schoolName: { type: String },
   grade: { type: Number, required: true },
   total: { type: Number, required: true },
   rec: { type: Number, required: true },
@@ -33,7 +46,6 @@ const statSchema = new Schema<StatDocument>({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
-
 
 const Stat = model<StatDocument>("Stat", statSchema);
 export default Stat;

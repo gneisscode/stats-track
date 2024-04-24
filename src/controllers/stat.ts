@@ -8,7 +8,8 @@ export class StatController {
     try {
       //@ts-ignore
       const id = req.user.id;
-      const { school, grade, total, rec, tws, feedback } = req.body;
+
+      const { school, grade, total, rec, tws, feedback, seminarName} = req.body;
 
       let user = await User.findById(id);
 
@@ -29,8 +30,14 @@ export class StatController {
       //create new stat for school
 
       const stat = new Stat({
-        presenter: user?._id,
-        school: schoolExists?._id,
+        presenterId: user?._id,
+        presenterFirstName: user?.firstName,
+        presenterLastName: user?.lastName,
+        presenterUserName: user?.username,
+        presenterProvince: user?.province,
+        schoolId: schoolExists?._id,
+        schoolName: schoolExists?.name,
+        seminarName: seminarName,
         grade: grade,
         total: total,
         rec: rec,
@@ -40,6 +47,7 @@ export class StatController {
 
       //save stat
       await stat.save();
+
 
       if (schoolExists) {
         await School.updateOne(
@@ -74,7 +82,7 @@ export class StatController {
       }
 
       res.status(200).json({
-        data: { stat: stat, user: user },
+        data: { stat: stat.toObject(), user: user },
         message: "Stat created successfully",
       });
     } catch (error) {
@@ -112,10 +120,10 @@ export class StatController {
       if (!stat) {
         return res.status(404).json({ message: "Stat not found" });
       }
-      const presenter = await User.findById(stat?.presenter).select(
+      const presenter = await User.findById(stat?.presenterId).select(
         "-password"
       );
-      const school = await School.findById(stat?.school);
+      const school = await School.findById(stat?.schoolId);
 
       res.status(200).json({
         data: { stat, presenter, school },
@@ -254,7 +262,7 @@ export class StatController {
       //@ts-ignore
       const presenter = req.user.id;
       const statId = req.params.id;
-      const { school, grade, total, rec, tws, feedback } = req.body;
+      const { school, grade, total, rec, tws, feedback, seminarName } = req.body;
       
       if (!statId) {
           return res.status(401).json({
@@ -296,7 +304,7 @@ export class StatController {
         //update the sessions for the previous school
 
         await School.updateOne(
-          { _id: stat.school },
+          { _id: stat.schoolId },
           { $inc: { sessions: -1 } }
         );
       }
@@ -314,6 +322,7 @@ export class StatController {
           rec,
           tws,
           feedback,
+          seminarName,
         },
         { new: true }
       );

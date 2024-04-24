@@ -37,15 +37,20 @@ export class AuthController {
 
       await user.save();
 
-      const { _id, organisation } = user;
+      const { _id, organisation, province, averageRec, averageTWS, teamLead } = user;
 
       const userData = {
-        id: _id,
+         _id,
         username: username.toLowerCase(),
         email: email.toLowerCase(),
         firstName: firstName,
         lastName: lastName,
         organisation,
+        province,
+        averageRec,
+        averageTWS,
+        teamLead,
+
       };
 
       const token = jwt.sign({ user: userData }, process.env.JWT_SECRET || "", {
@@ -81,15 +86,19 @@ export class AuthController {
         });
       }
 
-      const { _id, organisation, username, firstName, lastName } = user;
+      const { _id, organisation, username, firstName, lastName, province, averageRec, averageTWS, teamLead } = user;
 
       const userData = {
-        id: _id,
+         _id,
         username,
         email,
         firstName,
         lastName,
         organisation,
+        province,
+        averageRec,
+        averageTWS,
+        teamLead,
       };
 
       const token = jwt.sign({ user: userData }, process.env.JWT_SECRET || "", {
