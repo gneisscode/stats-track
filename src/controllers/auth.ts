@@ -71,6 +71,7 @@ export class AuthController {
   static async signIn(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
+      // console.log(email,password)
       const user = await User.findOne({ email: email.toLowerCase() });
 
       if (!user) {

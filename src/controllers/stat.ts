@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Stat, School, User } from "@models";
+import jwt from "jsonwebtoken";
 
 export class StatController {
   //Create a stat
@@ -7,11 +8,13 @@ export class StatController {
   static async createStat(req: Request, res: Response) {
     try {
       //@ts-ignore
-      const id = req.user.id;
+      const id = req.user._id;
 
       const { school, grade, total, rec, tws, feedback, seminarName} = req.body;
 
       let user = await User.findById(id);
+      console.log(user)
+      console.log(user?._id)
 
       let schoolExists = await School.findOne({
         name: { $regex: school, $options: "i" },
@@ -81,8 +84,13 @@ export class StatController {
         );
       }
 
+
+      const token = jwt.sign({ user: user }, process.env.JWT_SECRET || "", {
+        expiresIn: "7d",
+      });
+
       res.status(200).json({
-        data: { stat: stat.toObject(), user: user },
+        data: { stat: stat.toObject(), user:{token, user:user} },
         message: "Stat created successfully",
       });
     } catch (error) {
@@ -372,14 +380,14 @@ export class StatController {
     try {
       const { schoolId } = req.body;
       //@ts-ignore
-      const presenter = req.user.id;
+      const presenter = req.user._id;
       const id = req.params.id;
       if (!id) {
           return res.status(401).json({
             message: "Unauthorized action",
           });
         }
-      const deleted = await Stat.findOneAndDelete({ presenter, _id: id });
+      const deleted = await Stat.findOneAndDelete({ presenterId: presenter, _id: id });
 
       if (!deleted) {
         return res.status(401).json({ message: "Unauthorized action" });
@@ -387,6 +395,7 @@ export class StatController {
 
       // Find the user by presenter ID
       let user = await User.findOne({ _id: presenter });
+      console.log(user)
 
       if (user) {
         const { sessions, averageRec, averageTWS } = user;
